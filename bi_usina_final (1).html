@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BI Ferramentaria — Usina</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1117;--sf:#161B22;--sf2:#1C2128;--sf3:#21262D;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
+  --tx:#E6EDF3;--mu:#7D8590;--mu2:#3D444D;
+  --red:#F85149;--rbg:rgba(248,81,73,.1);--rbd:rgba(248,81,73,.3);
+  --ora:#E3993A;--obg:rgba(227,153,58,.1);--obd:rgba(227,153,58,.3);
+  --yel:#D29922;--ybg:rgba(210,153,34,.1);--ybd:rgba(210,153,34,.3);
+  --grn:#3FB950;--gbg:rgba(63,185,80,.1);--gbd:rgba(63,185,80,.3);
+  --blu:#58A6FF;--bbg:rgba(88,166,255,.1);--bbd:rgba(88,166,255,.3);
+  --pur:#BC8CFF;--pbg:rgba(188,140,255,.1);--pbd:rgba(188,140,255,.3);
+  --tea:#39D3BB;--tbg:rgba(57,211,187,.1);
+  --r:10px;--rsm:7px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px}
+button,input,select{font-family:inherit}
+button{cursor:pointer;background:none;border:none;color:inherit}
+
+/* TOPBAR */
+.topbar{background:var(--sf);border-bottom:1px solid var(--bd);padding:12px 16px 0;position:sticky;top:0;z-index:200}
+.tb1{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.bicon{width:34px;height:34px;background:var(--bbg);border:1px solid var(--bbd);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.bname{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.bsub{font-size:11px;color:var(--mu)}
+.tbr{display:flex;align-items:center;gap:8px}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s ease-in-out infinite}
+.ltxt{font-size:11px;color:var(--mu);font-family:'DM Mono',monospace}
+.clk{font-size:11px;font-family:'DM Mono',monospace;color:var(--mu);background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px 9px}
+.navrow{display:flex;gap:1px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
+.navrow::-webkit-scrollbar{display:none}
+.nb{font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px 8px 0 0;color:var(--mu);white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;flex-shrink:0}
+.nb.on{color:var(--blu);border-bottom-color:var(--blu);background:var(--bbg)}
+.nb:hover:not(.on){color:var(--tx);background:var(--sf2)}
+
+/* FILTER BAR */
+.fbar{background:var(--sf);border-bottom:1px solid var(--bd);padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.fbar::-webkit-scrollbar{display:none}
+.chip{font-size:11px;font-weight:500;padding:4px 11px;border-radius:20px;border:1px solid var(--bd2);color:var(--mu);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.chip.on{border-color:var(--bbd);color:var(--blu);background:var(--bbg)}
+.chip.r.on{border-color:var(--rbd);color:var(--red);background:var(--rbg)}
+.fsep{width:1px;height:16px;background:var(--bd2);flex-shrink:0}
+
+/* CONTENT */
+.content{padding:14px 16px;max-width:1100px;margin:0 auto;width:100%}
+.pg{display:none}.pg.on{display:block}
+
+/* KPI STRIP */
+.krow{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:520px){.krow{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:780px){.krow{grid-template-columns:repeat(6,1fr)}}
+.kc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px}
+.kc.red{border-color:var(--rbd);background:var(--rbg)}
+.kc.ora{border-color:var(--obd);background:var(--obg)}
+.kc.grn{border-color:var(--gbd);background:var(--gbg)}
+.kc.blu{border-color:var(--bbd);background:var(--bbg)}
+.kc.yel{border-color:var(--ybd);background:var(--ybg)}
+.kv{font-size:28px;font-weight:600;letter-spacing:-1.5px;line-height:1}
+.kc.red .kv{color:var(--red)}.kc.ora .kv{color:var(--ora)}
+.kc.grn .kv{color:var(--grn)}.kc.blu .kv{color:var(--blu)}.kc.yel .kv{color:var(--yel)}
+.kl{font-size:11px;color:var(--mu);margin-top:4px}
+.kh{font-size:10px;font-family:'DM Mono',monospace;margin-top:5px;opacity:.65}
+
+/* FLOW STEPS */
+.flow{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:600px){.flow{grid-template-columns:repeat(4,1fr)}}
+.fstep{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 12px;text-align:center;position:relative}
+.fstep.ora{border-color:var(--obd);background:var(--obg)}
+.fstep.blu{border-color:var(--bbd);background:var(--bbg)}
+.fstep.pur{border-color:var(--pbd);background:var(--pbg)}
+.fstep.grn{border-color:var(--gbd);background:var(--gbg)}
+.fstep-ic{font-size:22px;margin-bottom:6px}
+.fstep-n{font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:4px}
+.fstep-t{font-size:12px;font-weight:500;margin-bottom:3px}
+.fstep-d{font-size:10px;color:var(--mu);line-height:1.4}
+.fstep-arr{position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--mu2);z-index:1;display:none}
+@media(min-width:600px){.fstep-arr{display:block}}
+
+/* SH */
+.sh{display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}
+.sh:first-child{margin-top:0}
+.sh-t{font-size:11px;font-weight:500;color:var(--mu);letter-spacing:.07em;text-transform:uppercase}
+.sh-b{font-size:10px;font-family:'DM Mono',monospace;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:2px 8px;color:var(--mu)}
+.sh-b.red{border-color:var(--rbd);color:var(--red);background:var(--rbg)}
+.sh-b.grn{border-color:var(--gbd);color:var(--grn);background:var(--gbg)}
+
+/* LIST CARDS */
+.lc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ldot2{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.lb{flex:1;min-width:0}
+.ln{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lm{font-size:11px;color:var(--mu);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.lr{text-align:right;flex-shrink:0}
+.ltag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block}
+.lsub{font-size:10px;color:var(--mu);margin-top:3px;font-family:'DM Mono',monospace}
+
+/* FRENTES GRID */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:14px}
+.fcard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.fcard-h{padding:11px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.fbadge{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:'DM Mono',monospace}
+.fi2{flex:1;min-width:0}
+.fn{font-size:13px;font-weight:600}
+.fsb{font-size:11px;color:var(--mu);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcard-b{padding:10px 13px}
+.fr2{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.fml{font-size:11px;color:var(--mu)}
+.fmv{font-size:12px;font-weight:500;font-family:'DM Mono',monospace}
+.fmini{display:flex;gap:4px;margin-top:10px}
+.fslot{flex:1;border-radius:5px;padding:5px 4px;text-align:center}
+.fsv{font-size:14px;font-weight:600;line-height:1}
+.fsl{font-size:9px;color:var(--mu);margin-top:2px}
+
+/* KANBAN */
+.kban{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:560px){.kban{grid-template-columns:1fr}}
+.kcol{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.kch{padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.kcd{width:8px;height:8px;border-radius:50%}
+.kct{font-size:12px;font-weight:500;flex:1}
+.kcn{font-size:11px;font-family:'DM Mono',monospace;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:2px 7px;color:var(--mu)}
+.kcb{padding:8px;display:flex;flex-direction:column;gap:5px}
+.ki{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rsm);padding:9px 10px}
+.ki-n{font-size:12px;font-weight:500;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ktags{display:flex;gap:4px;flex-wrap:wrap}
+.kt{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.kt-f{background:var(--bbg);color:var(--blu)}
+.kt-fr{background:var(--sf);border:1px solid var(--bd);color:var(--mu)}
+.kt-fn{background:var(--pbg);color:var(--pur)}
+.kt-ri{background:var(--tbg);color:var(--tea)}
+.kt-d{background:var(--rbg);color:var(--red)}
+.kt-ok{background:var(--gbg);color:var(--grn)}
+.kt-y{background:var(--ybg);color:var(--yel)}
+.kempty{padding:16px;text-align:center;font-size:12px;color:var(--mu2)}
+
+/* BAR */
+.bi{margin-bottom:10px}
+.bh{display:flex;justify-content:space-between;margin-bottom:4px}
+.bnm{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.bvl{font-size:11px;font-family:'DM Mono',monospace;color:var(--mu)}
+.btr{height:5px;background:var(--sf2);border-radius:3px;overflow:hidden}
+.bf{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+
+/* FORM */
+.form-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.form-title{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.fg{grid-template-columns:1fr}}
+.ff{grid-column:1/-1}
+.flg{display:flex;flex-direction:column;gap:5px}
+.fll{font-size:11px;color:var(--mu);font-weight:500}
+.fli,.fls{background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--rsm);padding:8px 11px;color:var(--tx);font-size:13px;outline:none;transition:border-color .15s;width:100%}
+.fli:focus,.fls:focus{border-color:var(--blu)}
+.fls option{background:var(--sf2)}
+.fa{display:flex;gap:8px;margin-top:14px}
+.bp{background:var(--blu);color:#fff;border-radius:var(--rsm);padding:9px 20px;font-size:13px;font-weight:500;flex:1}
+.bp:active{opacity:.8}
+.bs{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);border-radius:var(--rsm);padding:9px 14px;font-size:13px}
+.bs.red{border-color:var(--rbd);color:var(--red);background:var(--rbg)}
+
+.orig-sel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ob{font-size:11px;font-weight:500;padding:6px 12px;border-radius:20px;border:1px solid var(--bd2);color:var(--mu);transition:all .15s}
+.ob.on{border-color:var(--bbd);color:var(--blu);background:var(--bbg)}
+
+.sbanner{background:var(--gbg);border:1px solid var(--gbd);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--grn);font-weight:500;display:none;margin-bottom:12px;align-items:center;gap:8px}
+.sbanner.on{display:flex}
+
+/* LAUDO */
+.laudo{background:var(--rbg);border:1px solid var(--rbd);border-radius:var(--r);padding:14px;margin-bottom:8px}
+.laudo-t{font-size:13px;font-weight:600;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* BOTTOM NAV */
+.bnav{display:none}
+@media(max-width:600px){
+  .bnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--bd);padding:6px 0 env(safe-area-inset-bottom);z-index:300}
+  .bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;color:var(--mu);font-size:9px;font-weight:500;transition:color .15s}
+  .bni.on{color:var(--blu)}
+  .bni-i{font-size:20px;line-height:1}
+  .content{padding-bottom:84px}
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes sIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.ain{animation:sIn .22s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb1">
+    <div class="brand">
+      <div class="bicon">⚙️</div>
+      <div>
+        <div class="bname">Ferramentaria BI</div>
+        <div class="bsub">Controle de Agregados — Usina · 8 Frentes</div>
+      </div>
+    </div>
+    <div class="tbr">
+      <div style="display:flex;align-items:center;gap:5px">
+        <div class="ldot"></div>
+        <div class="ltxt">ao vivo</div>
+      </div>
+      <div class="clk" id="clk">--:--</div>
+    </div>
+  </div>
+  <nav class="navrow">
+    <button class="nb on"  onclick="go('geral',this)">📊 Visão Geral</button>
+    <button class="nb"     onclick="go('kanban',this)">🔄 Kanban</button>
+    <button class="nb"     onclick="go('frentes',this)">🚜 Frentes</button>
+    <button class="nb"     onclick="go('estoque',this)">📦 Estoque</button>
+    <button class="nb"     onclick="go('registro',this)">📋 Registrar</button>
+    <button class="nb"     onclick="go('descarte',this)">🗑 Descarte</button>
+  </nav>
+</div>
+
+<!-- FILTER BAR -->
+<div class="fbar">
+  <button class="chip on" onclick="setF('todas',this)">Todas as frentes</button>
+  <div class="fsep"></div>
+  <button class="chip" onclick="setF('F1',this)">F1</button>
+  <button class="chip" onclick="setF('F2',this)">F2</button>
+  <button class="chip" onclick="setF('F3',this)">F3</button>
+  <button class="chip" onclick="setF('F4',this)">F4</button>
+  <button class="chip" onclick="setF('F5',this)">F5</button>
+  <button class="chip" onclick="setF('F6',this)">F6</button>
+  <button class="chip" onclick="setF('F7',this)">F7</button>
+  <button class="chip" onclick="setF('F8',this)">F8</button>
+  <div class="fsep"></div>
+  <button class="chip r" onclick="setF('venc',this)">🔴 Vencidos</button>
+</div>
+
+<div class="content">
+
+<!-- ══ VISÃO GERAL ══ -->
+<div class="pg on" id="pg-geral">
+
+  <div class="sh" style="margin-top:0"><div class="sh-t">Fluxo do dia — situação atual de cada etapa</div></div>
+  <div class="flow">
+    <div class="fstep ora">
+      <div class="fstep-arr">›</div>
+      <div class="fstep-ic">🚜</div>
+      <div class="fstep-n" style="color:var(--ora)">31</div>
+      <div class="fstep-t">Em campo</div>
+      <div class="fstep-d">Saíram revisados e estão nas frentes F1–F8</div>
+    </div>
+    <div class="fstep blu">
+      <div class="fstep-arr">›</div>
+      <div class="fstep-ic">↩️</div>
+      <div class="fstep-n" style="color:var(--blu)">9</div>
+      <div class="fstep-t">Entrou p/ revisar</div>
+      <div class="fstep-d">Campo trouxe com problema, ag. diagnóstico</div>
+    </div>
+    <div class="fstep pur">
+      <div class="fstep-arr">›</div>
+      <div class="fstep-ic">⚙️</div>
+      <div class="fstep-n" style="color:var(--pur)">46</div>
+      <div class="fstep-t">Em revisão</div>
+      <div class="fstep-d">Interno (46) + fornecedor (83) em andamento</div>
+    </div>
+    <div class="fstep grn">
+      <div class="fstep-ic">✅</div>
+      <div class="fstep-n" style="color:var(--grn)">430</div>
+      <div class="fstep-t">Disponíveis</div>
+      <div class="fstep-d">Revisados prontos p/ próxima saída</div>
+    </div>
+  </div>
+
+  <div class="krow">
+    <div class="kc red"><div class="kv">5</div><div class="kl">Revisões vencidas</div><div class="kh" style="color:var(--red)">● acionar agora</div></div>
+    <div class="kc ora"><div class="kv">7</div><div class="kl">Vencem amanhã</div><div class="kh" style="color:var(--ora)">● monitorar</div></div>
+    <div class="kc blu"><div class="kv">83</div><div class="kl">No fornecedor</div><div class="kh" style="color:var(--blu)">● ext. aguardando</div></div>
+    <div class="kc grn"><div class="kv">430</div><div class="kl">Disponíveis</div><div class="kh" style="color:var(--grn)">● prontos p/ saída</div></div>
+    <div class="kc"><div class="kv" style="color:var(--pur)">8</div><div class="kl">Frentes ativas</div><div class="kh">F1 a F8</div></div>
+    <div class="kc yel"><div class="kv">98</div><div class="kl">Abaixo do mín.</div><div class="kh" style="color:var(--yel)">● repor estoque</div></div>
+  </div>
+
+  <div class="sh"><div class="sh-t">Revisões vencidas — acionar agora</div><div class="sh-b red" id="cnt-crit">5</div></div>
+  <div id="list-crit"></div>
+
+  <div class="sh"><div class="sh-t">Resumo por frente</div></div>
+  <div class="fgrid" id="fgrid-mini"></div>
+
+  <div class="sh"><div class="sh-t">Motores hidráulicos — kanban das frentes</div><div class="sh-b">item crítico</div></div>
+  <div id="bar-mh"></div>
+
+  <div class="sh" style="margin-top:12px"><div class="sh-t">Componentes mais retirados (mês)</div></div>
+  <div id="bar-top"></div>
+</div>
+
+<!-- ══ KANBAN ══ -->
+<div class="pg" id="pg-kanban">
+  <div class="sh" style="margin-top:0">
+    <div class="sh-t">Revisões em andamento — tudo que saiu da ferramentaria</div>
+    <div class="sh-b" id="cnt-k">—</div>
+  </div>
+  <div class="kban" id="kban"></div>
+</div>
+
+<!-- ══ FRENTES ══ -->
+<div class="pg" id="pg-frentes">
+  <div class="sh" style="margin-top:0"><div class="sh-t">8 Frentes de colheita — colhedora + caminhão transbordo</div></div>
+  <div class="fgrid" id="fgrid-det"></div>
+  <div class="sh"><div class="sh-t">Retiradas por frente — mês atual</div></div>
+  <div id="bar-fh"></div>
+</div>
+
+<!-- ══ ESTOQUE ══ -->
+<div class="pg" id="pg-estoque">
+  <div class="krow">
+    <div class="kc red"><div class="kv">98</div><div class="kl">Abaixo do mínimo</div></div>
+    <div class="kc grn"><div class="kv">430</div><div class="kl">Disponíveis</div></div>
+    <div class="kc"><div class="kv" style="color:var(--pur)">83</div><div class="kl">No fornecedor</div></div>
+    <div class="kc blu"><div class="kv">46</div><div class="kl">Revisão interna</div></div>
+    <div class="kc"><div class="kv">244</div><div class="kl">Tipos cadastrados</div></div>
+    <div class="kc yel"><div class="kv">3</div><div class="kl">Laudos pendentes</div></div>
+  </div>
+  <div class="sh"><div class="sh-t">Déficit por categoria — dados reais</div></div>
+  <div id="bar-cat"></div>
+  <div class="sh"><div class="sh-t">Itens com maior déficit</div></div>
+  <div id="list-def"></div>
+</div>
+
+<!-- ══ REGISTRO ══ -->
+<div class="pg" id="pg-registro">
+  <div class="sbanner" id="sb">✅ Movimento registrado!</div>
+
+  <div class="sh" style="margin-top:0"><div class="sh-t">Tipo de movimentação</div></div>
+  <div class="orig-sel">
+    <button class="ob on" onclick="setO('saida',this)">📤 Saída revisado</button>
+    <button class="ob"    onclick="setO('entrada',this)">📥 Entrada com problema</button>
+    <button class="ob"    onclick="setO('retorno',this)">✅ Retorno do fornecedor</button>
+    <button class="ob"    onclick="setO('envio',this)">🏭 Envio fornecedor</button>
+  </div>
+
+  <!-- SAÍDA -->
+  <div class="form-card" id="form-saida">
+    <div class="form-title">📤 Saída de agregado revisado</div>
+    <div class="fg">
+      <div class="flg"><label class="fll">Componente</label>
+        <select class="fls" id="s-c">
+          <option value="">Selecione o componente...</option>
+          <optgroup label="Motores Hidráulicos">
+            <option>Motor Charlyn 18" Estreado</option>
+            <option>Motor Charlyn 24" Estreado</option>
+            <option>Motor Charlyn 30" Estreado</option>
+            <option>Motor de Roda Leduc</option>
+            <option>Motor Picador 3520</option>
+            <option>Motor Picador CH570</option>
+            <option>Motor do Corte de Base</option>
+            <option>Motor Extrator Primário CH570</option>
+          </optgroup>
+          <optgroup label="Bombas Hidráulicas">
+            <option>Bomba de Transmissão L/D</option>
+            <option>Bomba de Transmissão L/E</option>
+            <option>Bomba Corte de Base/Picador</option>
+            <option>Bomba Engrenagem 3 Corpos</option>
+            <option>Bomba Engrenagem 5 Corpos</option>
+            <option>Bomba Extrator Primário 3520</option>
+          </optgroup>
+          <optgroup label="Cilindros Hidráulicos">
+            <option>Cilindro do Giro 3520</option>
+            <option>Cilindro Despontador CH570</option>
+            <option>Cilindro da Cabine (Colhedora)</option>
+            <option>Cilindro do Flap</option>
+            <option>Cilindro Divisor de Linha CH570</option>
+          </optgroup>
+          <optgroup label="Elétricos">
+            <option>Alternador 24V</option>
+            <option>Motor de Arranque 24V</option>
+          </optgroup>
+          <optgroup label="Outros">
+            <option>Turbina Trator 8R</option>
+            <option>Radiador 3520</option>
+            <option>Caixa do Picador CH570</option>
+            <option>Cardan Colhedora</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Nº Série (revisado — saindo)</label><input class="fli" id="s-ns" placeholder="Ex: AGR-MOT-1042"></div>
+      <div class="flg"><label class="fll">Frente de destino</label>
+        <select class="fls" id="s-fr">
+          <option value="">Selecione a frente...</option>
+          <option>F1</option><option>F2</option><option>F3</option><option>F4</option>
+          <option>F5</option><option>F6</option><option>F7</option><option>F8</option>
+          <option>Oficina Central</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Frota (colhedora ou transbordo)</label>
+        <select class="fls" id="s-ft">
+          <option value="">Selecione a frota...</option>
+          <optgroup label="Colhedoras">
+            <option>CH570-001</option><option>CH570-002</option><option>CH570-003</option>
+            <option>CH950-001</option><option>3520-001</option><option>3520-002</option>
+            <option>8R-001</option><option>8R-002</option>
+          </optgroup>
+          <optgroup label="Caminhões Transbordo">
+            <option>VW26280-001</option><option>VW31320-001</option>
+            <option>VW31320-002</option><option>SCANIA-001</option>
+          </optgroup>
+          <optgroup label="Tratores">
+            <option>7210J-001</option><option>7210J-002</option><option>8R-003</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Quem retirou</label>
+        <select class="fls" id="s-re">
+          <option value="">Selecione...</option>
+          <optgroup label="Mecânicos">
+            <option>João Silva</option><option>Pedro Santos</option><option>Carlos Oliveira</option>
+            <option>Marcos Lima</option><option>Roberto Ferreira</option><option>André Costa</option>
+            <option>Renilson</option><option>Francisco</option><option>Fábio</option>
+          </optgroup>
+          <optgroup label="Eletricistas">
+            <option>Antônio Elias</option><option>Ricardo Sousa</option>
+            <option>Paulo Nunes</option><option>Sandro Melo</option>
+          </optgroup>
+          <optgroup label="Operadores / Campo">
+            <option>Motorista Transbordo</option><option>Operador Colhedora</option>
+            <option>Supervisor de Frente</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">WhatsApp</label><input class="fli" id="s-w" placeholder="(67) 9 9999-9999"></div>
+      <div class="flg ff"><label class="fll">Observações</label><input class="fli" id="s-o" placeholder="Motivo da troca, condição do item..."></div>
+    </div>
+    <div class="fa"><button class="bs" onclick="clrF()">Limpar</button><button class="bp" onclick="sub('Saída registrada — item saiu revisado')">📤 Registrar saída</button></div>
+  </div>
+
+  <!-- ENTRADA -->
+  <div class="form-card" id="form-entrada" style="display:none">
+    <div class="form-title">📥 Entrada com problema — campo trouxe</div>
+    <div class="fg">
+      <div class="flg"><label class="fll">Componente com problema</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>Motor Charlyn 18" Estreado</option><option>Motor Charlyn 24" Estreado</option>
+          <option>Bomba de Transmissão L/D</option><option>Cilindro do Giro 3520</option>
+          <option>Alternador 24V</option><option>Turbina Trator 8R</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Nº Série (entra p/ revisar)</label><input class="fli" placeholder="Ex: AGR-MOT-1031"></div>
+      <div class="flg"><label class="fll">Veio de qual frente</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>F1</option><option>F2</option><option>F3</option><option>F4</option>
+          <option>F5</option><option>F6</option><option>F7</option><option>F8</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Frota de origem</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>CH570-001</option><option>CH570-002</option><option>3520-001</option>
+          <option>3520-002</option><option>8R-001</option><option>CH950-001</option>
+          <option>VW31320-001 (Transbordo)</option><option>VW26280-001 (Transbordo)</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Quem trouxe</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>João Silva</option><option>Pedro Santos</option><option>Carlos Oliveira</option>
+          <option>Motorista Transbordo</option><option>Operador Colhedora</option><option>Supervisor de Frente</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Diagnóstico inicial</label>
+        <select class="fls">
+          <option>Vazamento hidráulico</option><option>Travado / sem rotação</option>
+          <option>Elétrico — sem tensão/carga</option><option>Barulho anormal</option>
+          <option>Dano externo / colisão</option><option>Desgaste natural</option>
+          <option>A definir após inspeção</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Destino da revisão</label>
+        <select class="fls"><option>Revisão Interna (2 dias)</option><option>HIDRATOP</option>
+          <option>FORTEC</option><option>UEL</option><option>Auto Elétrica Centro</option>
+          <option>Retífica Boa Vista</option><option>Borracharia Central</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">WhatsApp do responsável</label><input class="fli" placeholder="(67) 9 9999-9999"></div>
+      <div class="flg ff"><label class="fll">Descrição do problema</label><input class="fli" placeholder="Descreva o problema observado no campo..."></div>
+    </div>
+    <div class="fa"><button class="bs" onclick="clrF()">Limpar</button><button class="bp" onclick="sub('Entrada com problema registrada — vai p/ revisão')">📥 Registrar entrada</button></div>
+  </div>
+
+  <!-- RETORNO -->
+  <div class="form-card" id="form-retorno" style="display:none">
+    <div class="form-title">✅ Retorno do fornecedor — inspecionar</div>
+    <div class="fg">
+      <div class="flg"><label class="fll">Componente</label><select class="fls"><option value="">Selecione...</option><option>Motor Charlyn 18" Estreado</option><option>Bomba de Transmissão L/D</option><option>Alternador 24V</option><option>Turbina Trator 8R</option></select></div>
+      <div class="flg"><label class="fll">Nº Série</label><input class="fli" placeholder="Ex: AGR-MOT-1031"></div>
+      <div class="flg"><label class="fll">Retornou de</label><select class="fls"><option>HIDRATOP</option><option>FORTEC</option><option>UEL</option><option>Auto Elétrica Centro</option><option>Retífica Boa Vista</option><option>Revisão Interna</option></select></div>
+      <div class="flg"><label class="fll">Custo final (R$)</label><input class="fli" type="number" placeholder="0,00"></div>
+      <div class="flg"><label class="fll">Inspeção ao retorno</label>
+        <select class="fls"><option>✅ Aprovado — entra no estoque</option><option>⚠ Reenviar — não OK</option><option>🗑 Descartado — emitir laudo</option></select>
+      </div>
+      <div class="flg"><label class="fll">Inspecionado por</label><select class="fls"><option>João Silva</option><option>Pedro Santos</option><option>Antônio Elias</option><option>Fábio</option></select></div>
+      <div class="flg ff"><label class="fll">Serviço realizado</label><input class="fli" placeholder="Descreva o que foi feito..."></div>
+    </div>
+    <div class="fa"><button class="bs" onclick="clrF()">Limpar</button><button class="bp" onclick="sub('Retorno registrado — item inspecionado')">✅ Confirmar retorno</button></div>
+  </div>
+
+  <!-- ENVIO FORNECEDOR -->
+  <div class="form-card" id="form-envio" style="display:none">
+    <div class="form-title">🏭 Envio para fornecedor externo</div>
+    <div class="fg">
+      <div class="flg"><label class="fll">Componente</label><select class="fls"><option value="">Selecione...</option><option>Motor Charlyn 18" Estreado</option><option>Bomba de Transmissão L/D</option><option>Alternador 24V</option></select></div>
+      <div class="flg"><label class="fll">Nº Série</label><input class="fli" placeholder="Ex: AGR-MOT-1031"></div>
+      <div class="flg"><label class="fll">Fornecedor</label><select class="fls"><option>HIDRATOP</option><option>FORTEC</option><option>UEL</option><option>Auto Elétrica Centro</option><option>Retífica Boa Vista</option><option>Borracharia Central</option></select></div>
+      <div class="flg"><label class="fll">Prazo combinado</label><input class="fli" type="date"></div>
+      <div class="flg"><label class="fll">Orçamento aprovado (R$)</label><input class="fli" type="number" placeholder="0,00"></div>
+      <div class="flg"><label class="fll">Responsável ferramentaria</label><select class="fls"><option>João Silva</option><option>Pedro Santos</option><option>Fábio</option></select></div>
+      <div class="flg ff"><label class="fll">Serviço solicitado</label><input class="fli" placeholder="Descreva o serviço solicitado ao fornecedor..."></div>
+    </div>
+    <div class="fa"><button class="bs" onclick="clrF()">Limpar</button><button class="bp" onclick="sub('Envio ao fornecedor registrado')">🏭 Registrar envio</button></div>
+  </div>
+
+  <div class="sh"><div class="sh-t">Últimas movimentações</div></div>
+  <div id="list-mov"></div>
+</div>
+
+<!-- ══ DESCARTE ══ -->
+<div class="pg" id="pg-descarte">
+  <div class="krow">
+    <div class="kc yel"><div class="kv">3</div><div class="kl">Laudos pendentes</div></div>
+    <div class="kc red"><div class="kv">7</div><div class="kl">Descartados no ano</div></div>
+    <div class="kc grn"><div class="kv">5</div><div class="kl">Reposições OK</div></div>
+    <div class="kc"><div class="kv" style="color:var(--pur)">2</div><div class="kl">Ag. aprovação compra</div></div>
+  </div>
+
+  <div class="sh"><div class="sh-t">Emitir laudo de descarte</div><div class="sh-b" style="border-color:var(--ybd);color:var(--yel)">3 pendentes</div></div>
+  <div class="laudo">
+    <div class="laudo-t">🗑 Novo laudo técnico de descarte</div>
+    <div class="fg">
+      <div class="flg"><label class="fll">Componente descartado</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>Motor de Roda Leduc — AGR-MRL-0019</option>
+          <option>Cilindro Direção 8R — AGR-CIL-2041</option>
+          <option>Bomba Extrator 3520 — AGR-BOM-0887</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Veio de qual frente</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>F1</option><option>F2</option><option>F3</option><option>F4</option>
+          <option>F5</option><option>F6</option><option>F7</option><option>F8</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Frota de origem</label>
+        <select class="fls"><option value="">Selecione...</option>
+          <option>CH570-001</option><option>3520-001</option><option>8R-001</option>
+          <option>VW31320-001 (Transbordo)</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Motivo do descarte</label>
+        <select class="fls">
+          <option>Dano irreparável</option><option>Custo de reparo inviável</option>
+          <option>Peças indisponíveis no mercado</option><option>Obsolescência técnica</option>
+          <option>Dano por colisão / acidente</option><option>Desgaste além do limite</option>
+        </select>
+      </div>
+      <div class="flg"><label class="fll">Laudo técnico por</label>
+        <select class="fls"><option>João Silva</option><option>Pedro Santos</option><option>Antônio Elias</option><option>Fábio</option></select>
+      </div>
+      <div class="flg"><label class="fll">Solicitar reposição?</label>
+        <select class="fls"><option>✅ Sim — solicitar compra</option><option>Não — sem reposição</option><option>Verificar com almoxarifado</option></select>
+      </div>
+      <div class="flg ff"><label class="fll">Descrição técnica</label><input class="fli" placeholder="Descreva o estado do componente e o motivo técnico do descarte..."></div>
+    </div>
+    <div class="fa" style="margin-top:12px">
+      <button class="bs red" onclick="sub('Laudo emitido')">🗑 Só emitir laudo</button>
+      <button class="bp" onclick="sub('Laudo emitido + reposição solicitada')">🗑 Emitir + solicitar reposição</button>
+    </div>
+  </div>
+
+  <div class="sh"><div class="sh-t">Histórico de descartes</div></div>
+  <div id="list-desc"></div>
+</div>
+
+</div><!-- /content -->
+
+<div class="bnav">
+  <div class="bni on"  onclick="go('geral',null,0)"><div class="bni-i">📊</div>Geral</div>
+  <div class="bni"     onclick="go('kanban',null,1)"><div class="bni-i">🔄</div>Kanban</div>
+  <div class="bni"     onclick="go('frentes',null,2)"><div class="bni-i">🚜</div>Frentes</div>
+  <div class="bni"     onclick="go('estoque',null,3)"><div class="bni-i">📦</div>Estoque</div>
+  <div class="bni"     onclick="go('registro',null,4)"><div class="bni-i">📋</div>Registrar</div>
+  <div class="bni"     onclick="go('descarte',null,5)"><div class="bni-i">🗑</div>Descarte</div>
+</div>
+
+<script>
+// ── DATA REAL ─────────────────────────────────────────────────────────────
+// 8 frentes F1-F8, colhedora + caminhão transbordo
+const FRENTES=[
+  {id:'F1',cor:'#58A6FF',bg:'rgba(88,166,255,.15)', col:'CH570-001',trans:'VW31320-001',venc:1,rev:4,pron:6,total:11},
+  {id:'F2',cor:'#3FB950',bg:'rgba(63,185,80,.15)',  col:'CH570-002',trans:'VW26280-001',venc:0,rev:3,pron:5,total:8},
+  {id:'F3',cor:'#E3993A',bg:'rgba(227,153,58,.15)', col:'3520-001', trans:'VW31320-002',venc:2,rev:5,pron:4,total:11},
+  {id:'F4',cor:'#BC8CFF',bg:'rgba(188,140,255,.15)',col:'8R-001',   trans:'SCANIA-001', venc:1,rev:6,pron:3,total:10},
+  {id:'F5',cor:'#39D3BB',bg:'rgba(57,211,187,.15)', col:'CH950-001',trans:'VW26280-002',venc:0,rev:2,pron:5,total:7},
+  {id:'F6',cor:'#D29922',bg:'rgba(210,153,34,.15)', col:'3520-002', trans:'VW31320-001',venc:0,rev:3,pron:4,total:7},
+  {id:'F7',cor:'#F85149',bg:'rgba(248,81,73,.1)',   col:'8R-002',   trans:'SCANIA-002', venc:1,rev:4,pron:3,total:8},
+  {id:'F8',cor:'#E879F9',bg:'rgba(232,121,249,.1)', col:'7210J-001',trans:'VW26280-003',venc:0,rev:2,pron:4,total:6},
+];
+
+const KBAN={
+  ag:[
+    {n:'Motor Charlyn 18" Estreado',fr:'F3',ft:'3520-001',me:'Carlos Oliveira',dest:'HIDRATOP',d:0},
+    {n:'Bomba de Transmissão L/D',  fr:'F1',ft:'CH570-001',me:'João Silva',    dest:'Rev. Int.',d:1},
+    {n:'Alternador 24V',            fr:'F4',ft:'8R-001',   me:'Antônio Elias', dest:'Auto Elét.',d:0},
+    {n:'Cilindro do Giro 3520',     fr:'F7',ft:'8R-002',   me:'Marcos Lima',   dest:'HIDRATOP',d:1},
+    {n:'Motor Picador CH570',       fr:'F2',ft:'CH570-002', me:'Pedro Santos',  dest:'FORTEC',d:0},
+  ],
+  rev:[
+    {n:'Motor Charlyn 24" Estreado', fr:'F3',ft:'3520-001',me:'Marcos Lima',   dest:'HIDRATOP',d:8},
+    {n:'Turbina Trator 8R',          fr:'F4',ft:'8R-001',  me:'Fábio',         dest:'FORTEC',d:14},
+    {n:'Bomba Extrator Primário 3520',fr:'F6',ft:'3520-002',me:'Francisco',     dest:'HIDRATOP',d:6},
+    {n:'Caixa do Picador CH570',     fr:'F5',ft:'CH950-001',me:'Renilson',      dest:'Rev. Int.',d:2},
+    {n:'Motor Diesel CH570',         fr:'F1',ft:'CH570-001',me:'Fábio',         dest:'Rev. Int.',d:4},
+    {n:'Cardan Colhedora 3520',      fr:'F3',ft:'3520-001',me:'André Costa',    dest:'Rev. Int.',d:3},
+  ],
+  venc:[
+    {n:'Motor de Roda Leduc',        fr:'F3',ft:'3520-001',me:'André Costa',   dest:'HIDRATOP',d:7},
+    {n:'Bomba Corte Base/Picador',   fr:'F4',ft:'8R-001',  me:'Marcos Lima',   dest:'Rev. Int.',d:9},
+    {n:'Motor Charlyn 30" Estreado', fr:'F7',ft:'8R-002',  me:'João Silva',    dest:'FORTEC',d:4},
+    {n:'Cilindro Div. Linha CH570',  fr:'F3',ft:'3520-002',me:'Pedro Santos',  dest:'HIDRATOP',d:6},
+    {n:'Servo de Embreagem',         fr:'F1',ft:'CH570-001',me:'Carlos Oliveira',dest:'Rev. Int.',d:3},
+  ],
+};
+
+// Motores hidráulicos reais da planilha
+const MH_KANBAN=[
+  {comp:'Motor Charlyn 18" Estreado',disp:1,min:5,int:2,terc:0,def:4},
+  {comp:'Motor de Roda Leduc',       disp:0,min:1,int:2,terc:0,def:1},
+  {comp:'Motor Picador 3520',        disp:0,min:1,int:0,terc:0,def:1},
+  {comp:'Motor Picador CH570',       disp:0,min:1,int:1,terc:0,def:1},
+  {comp:'Macaco da Cabine',          disp:0,min:1,int:2,terc:0,def:1},
+  {comp:'Motor Charlyn 24" Estreado',disp:5,min:5,int:0,terc:0,def:0},
+  {comp:'Motor Charlyn 30" Estreado',disp:4,min:2,int:0,terc:0,def:0},
+  {comp:'Motor do Corte de Base',    disp:2,min:2,int:0,terc:0,def:0},
+];
+
+// Dados reais por categoria
+const CAT=[
+  {c:'Cercado',                disp:49, min:67, def:18},
+  {c:'Cuicas',                 disp:53, min:66, def:13},
+  {c:'Direção',                disp:2,  min:10, def:8},
+  {c:'Cardans',                disp:27, min:33, def:6},
+  {c:'Embreagem',              disp:8,  min:14, def:6},
+  {c:'Tirantes',               disp:0,  min:6,  def:6},
+  {c:'Caixa',                  disp:0,  min:2,  def:2},
+  {c:'Kit',                    disp:0,  min:1,  def:1},
+  {c:'Cilindros Hidráulicos',  disp:73, min:67, def:0},
+  {c:'Motores Hidráulicos',    disp:64, min:45, def:0},
+  {c:'Radiadores/Intercooler', disp:72, min:57, def:0},
+  {c:'Elétrica',               disp:31, min:22, def:0},
+  {c:'Hidráulicas (Bombas)',   disp:25, min:13, def:0},
+  {c:'Turbinas',               disp:24, min:24, def:0},
+];
+
+const DEF=[
+  {c:'Cuica 24x30 16MM',          cat:'Cuicas',           d:0,  m:15, df:15},
+  {c:'Motor Partida Caminhão',    cat:'Elétrico',          d:0,  m:5,  df:5},
+  {c:'Motor Charlyn 18" Estreado',cat:'Mot. Hidráulico',   d:1,  m:5,  df:4},
+  {c:'Tirante Reto VW',           cat:'Tirantes',          d:0,  m:4,  df:4},
+  {c:'Radiador Trator 7210J',     cat:'Radiadores',        d:1,  m:4,  df:3},
+  {c:'Kit Embreagem 31.330 VW',   cat:'Embreagem',         d:1,  m:4,  df:3},
+  {c:'Cuica 24x30 22MM',          cat:'Cuicas',            d:12, m:15, df:3},
+  {c:'Cilindro Rolo Tombador CH', cat:'Cil. Hidráulico',   d:0,  m:2,  df:2},
+];
+
+const TOP=[
+  {c:'Motor Hidráulico (Charlyn)',n:24},{c:'Bomba de Transmissão',n:19},
+  {c:'Cilindro do Giro',n:14},{c:'Alternador 24V',n:11},
+  {c:'Turbina 8R',n:9},{c:'Cardan Colhedora',n:8},
+  {c:'Bomba Extrator Primário',n:7},{c:'Caixa do Picador',n:6},
+];
+
+const MOV=[
+  {c:'Motor Charlyn 18" Est.',fr:'F3',ft:'3520-001',me:'Carlos Oliveira',tp:'Entrada prob.',h:'8 min'},
+  {c:'Bomba Transm. L/D',     fr:'F1',ft:'CH570-001',me:'João Silva',    tp:'Saída revisado',h:'22 min'},
+  {c:'Alternador 24V',        fr:'F4',ft:'8R-001',   me:'Antônio Elias', tp:'Envio fornecedor',h:'1h'},
+  {c:'Turbina Trator 8R',     fr:'F4',ft:'8R-002',   me:'Fábio',         tp:'Retorno revis.',h:'2h'},
+  {c:'Cilindro Giro 3520',    fr:'F7',ft:'8R-002',   me:'Marcos Lima',   tp:'Saída revisado',h:'3h'},
+];
+
+const DESC=[
+  {c:'Motor Roda Leduc — AGR-MRL-0019',motivo:'Custo reparo inviável',por:'João Silva',fr:'F3',data:'15/03/2025',rep:'✅ Solicitado'},
+  {c:'Alternador 24V — AGR-ALT-0754',  motivo:'Dano irreparável (colisão)',por:'Antônio Elias',fr:'F1',data:'02/03/2025',rep:'✅ Solicitado'},
+  {c:'Servo Embreagem — AGR-SEM-1102', motivo:'Peças indisponíveis',por:'Pedro Santos',fr:'F4',data:'18/02/2025',rep:'⚠ Verificar'},
+];
+
+const FH=[
+  {f:'F3',n:28},{f:'F4',n:24},{f:'F1',n:21},{f:'F7',n:18},
+  {f:'F2',n:16},{f:'F6',n:14},{f:'F5',n:12},{f:'F8',n:9},
+];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function bar(pct,col){return`<div class="btr"><div class="bf" style="width:${Math.max(pct,2)}%;background:${col}"></div></div>`}
+function frById(id){return FRENTES.find(f=>f.id===id)||{id,cor:'var(--mu)',bg:'var(--sf2)'}}
+function tipoCol(t){
+  if(t.includes('prob')) return'var(--ora)';
+  if(t.includes('Envio')) return'var(--pur)';
+  if(t.includes('Retorno')) return'var(--grn)';
+  return'var(--blu)';
+}
+
+// ── GERAL ─────────────────────────────────────────────────────────────────
+function buildGeral(){
+  document.getElementById('list-crit').innerHTML=KBAN.venc.map(t=>`
+    <div class="lc ain">
+      <div class="ldot2" style="background:var(--red)"></div>
+      <div class="lb">
+        <div class="ln">${t.n}</div>
+        <div class="lm"><span>${t.fr}</span><span>${t.ft}</span><span>${t.me}</span><span>${t.dest}</span></div>
+      </div>
+      <div class="lr">
+        <span class="ltag" style="background:var(--rbg);color:var(--red);border:1px solid var(--rbd)">Vencido</span>
+        <div class="lsub">${t.d}d em aberto</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('fgrid-mini').innerHTML=FRENTES.map(f=>`
+    <div class="fcard">
+      <div class="fcard-h">
+        <div class="fbadge" style="background:${f.bg};color:${f.cor}">${f.id}</div>
+        <div class="fi2">
+          <div class="fn">${f.id}</div>
+          <div class="fsb">${f.col} · ${f.trans}</div>
+        </div>
+        ${f.venc>0
+          ?`<span class="ltag" style="background:var(--rbg);color:var(--red);border:1px solid var(--rbd)">⚠ ${f.venc}</span>`
+          :`<span class="ltag" style="background:var(--gbg);color:var(--grn)">✓ OK</span>`}
+      </div>
+      <div class="fcard-b">
+        <div class="fmini">
+          <div class="fslot" style="background:var(--rbg)"><div class="fsv" style="color:var(--red)">${f.venc}</div><div class="fsl">Venc.</div></div>
+          <div class="fslot" style="background:var(--bbg)"><div class="fsv" style="color:var(--blu)">${f.rev}</div><div class="fsl">Revisão</div></div>
+          <div class="fslot" style="background:var(--gbg)"><div class="fsv" style="color:var(--grn)">${f.pron}</div><div class="fsl">Prontos</div></div>
+          <div class="fslot" style="background:var(--sf2)"><div class="fsv" style="color:var(--mu)">${f.total}</div><div class="fsl">Total</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Motores hidráulicos kanban bar
+  document.getElementById('bar-mh').innerHTML=MH_KANBAN.map(m=>{
+    const tot=m.disp+m.int+(m.terc||0);
+    const pct_disp=m.min>0?Math.round(m.disp/Math.max(m.min,m.disp)*100):100;
+    const col=m.def>0?'var(--red)':m.disp<=m.min?'var(--ora)':'var(--grn)';
+    return`<div class="bi">
+      <div class="bh">
+        <span class="bnm">${m.comp}</span>
+        <span class="bvl">
+          ${m.def>0?`<span style="color:var(--red)">-${m.def}</span>  `:''}
+          ${m.disp} disp · ${m.int} int · ${m.min} mín
+        </span>
+      </div>
+      ${bar(Math.max(pct_disp,3),col)}
+    </div>`;}).join('');
+
+  const mx=TOP[0].n;
+  document.getElementById('bar-top').innerHTML=TOP.map(c=>`
+    <div class="bi"><div class="bh"><span class="bnm">${c.c}</span><span class="bvl">${c.n}×</span></div>${bar(Math.round(c.n/mx*100),'var(--blu)')}</div>`).join('');
+}
+
+// ── KANBAN ────────────────────────────────────────────────────────────────
+function buildKanban(){
+  function col(title,dc,items,empty){
+    const cards=items.length?items.map(t=>`
+      <div class="ki">
+        <div class="ki-n">${t.n}</div>
+        <div class="ktags">
+          <span class="kt kt-f">${t.fr}</span>
+          <span class="kt kt-fr">${t.ft}</span>
+          <span class="kt kt-fr">${t.me}</span>
+          ${t.dest==='Rev. Int.'?`<span class="kt kt-ri">Int.</span>`:`<span class="kt kt-fn">${t.dest}</span>`}
+          ${t.d>2?`<span class="kt kt-d">${t.d}d</span>`:t.d===1?`<span class="kt kt-y">1d</span>`:`<span class="kt kt-ok">Hoje</span>`}
+        </div>
+      </div>`).join(''):`<div class="kempty">${empty}</div>`;
+    return`<div class="kcol">
+      <div class="kch"><div class="kcd" style="background:${dc}"></div><div class="kct">${title}</div><div class="kcn">${items.length}</div></div>
+      <div class="kcb">${cards}</div>
+    </div>`;
+  }
+  const tot=KBAN.ag.length+KBAN.rev.length+KBAN.venc.length;
+  document.getElementById('cnt-k').textContent=`${tot} em andamento`;
+  document.getElementById('kban').innerHTML=
+    col('Ag. diagnóstico','var(--yel)',KBAN.ag,'Nenhuma pendente ✓')+
+    col('Em revisão',     'var(--blu)',KBAN.rev,'Nenhuma em revisão')+
+    col('Vencidas',       'var(--red)',KBAN.venc,'Nenhuma vencida ✓');
+}
+
+// ── FRENTES ───────────────────────────────────────────────────────────────
+function buildFrentes(){
+  document.getElementById('fgrid-det').innerHTML=FRENTES.map(f=>`
+    <div class="fcard">
+      <div class="fcard-h">
+        <div class="fbadge" style="background:${f.bg};color:${f.cor}">${f.id}</div>
+        <div class="fi2">
+          <div class="fn">Frente ${f.id.replace('F','')}</div>
+          <div class="fsb">Colhedora: ${f.col} · Transbordo: ${f.trans}</div>
+        </div>
+      </div>
+      <div class="fcard-b">
+        <div class="fr2"><span class="fml">Colhedora</span><span class="fmv">${f.col}</span></div>
+        <div class="fr2"><span class="fml">Caminhão Transbordo</span><span class="fmv">${f.trans}</span></div>
+        <div class="fr2"><span class="fml">Agregados em campo</span><span class="fmv">${f.total}</span></div>
+        <div class="fr2"><span class="fml">Em revisão</span><span class="fmv" style="color:var(--blu)">${f.rev}</span></div>
+        <div class="fr2"><span class="fml">Prontos p/ uso</span><span class="fmv" style="color:var(--grn)">${f.pron}</span></div>
+        <div class="fr2"><span class="fml">Revisões vencidas</span>
+          <span class="fmv" style="color:${f.venc>0?'var(--red)':'var(--grn)'}">${f.venc>0?f.venc+' ⚠':'Nenhuma ✓'}</span>
+        </div>
+        <div class="fmini" style="margin-top:10px">
+          <div class="fslot" style="background:var(--rbg)"><div class="fsv" style="color:var(--red)">${f.venc}</div><div class="fsl">Venc.</div></div>
+          <div class="fslot" style="background:var(--bbg)"><div class="fsv" style="color:var(--blu)">${f.rev}</div><div class="fsl">Revisão</div></div>
+          <div class="fslot" style="background:var(--gbg)"><div class="fsv" style="color:var(--grn)">${f.pron}</div><div class="fsl">Prontos</div></div>
+          <div class="fslot" style="background:var(--sf2)"><div class="fsv" style="color:var(--mu)">${f.total}</div><div class="fsl">Total</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const mx=FH[0].n;
+  document.getElementById('bar-fh').innerHTML=FH.map(f=>`
+    <div class="bi"><div class="bh"><span class="bnm">${f.f}</span><span class="bvl">${f.n} retiradas/mês</span></div>
+    ${bar(Math.round(f.n/mx*100),'var(--tea)')}</div>`).join('');
+}
+
+// ── ESTOQUE ───────────────────────────────────────────────────────────────
+function buildEstoque(){
+  const mx=Math.max(...CAT.map(c=>c.def),1);
+  document.getElementById('bar-cat').innerHTML=CAT.map(c=>{
+    const pct=c.def>0?Math.round(c.def/mx*100):10;
+    const col=c.def>5?'var(--red)':c.def>0?'var(--ora)':'var(--grn)';
+    return`<div class="bi"><div class="bh">
+      <span class="bnm">${c.c}</span>
+      <span class="bvl">${c.disp}/${c.min}${c.def>0?` <span style="color:var(--red)">-${c.def}</span>`:' ✓'}</span>
+    </div>${bar(Math.max(pct,3),col)}</div>`;}).join('');
+
+  document.getElementById('list-def').innerHTML=DEF.map(d=>`
+    <div class="lc"><div class="ldot2" style="background:var(--red)"></div>
+    <div class="lb"><div class="ln">${d.c}</div><div class="lm"><span>${d.cat}</span><span>Disp: ${d.d}</span><span>Mín: ${d.m}</span></div></div>
+    <div class="lr"><span style="font-size:14px;font-weight:600;color:var(--red)">-${d.df}</span></div></div>`).join('');
+}
+
+// ── REGISTRO ──────────────────────────────────────────────────────────────
+function buildMov(){
+  document.getElementById('list-mov').innerHTML=MOV.map(m=>`
+    <div class="lc"><div class="ldot2" style="background:${tipoCol(m.tp)}"></div>
+    <div class="lb"><div class="ln">${m.c}</div><div class="lm"><span>${m.fr}</span><span>${m.ft}</span><span>${m.me}</span></div></div>
+    <div class="lr">
+      <span class="ltag" style="background:var(--sf2);border:1px solid var(--bd);color:var(--mu)">${m.tp}</span>
+      <div class="lsub">há ${m.h}</div>
+    </div></div>`).join('');
+}
+
+function buildDescarte(){
+  document.getElementById('list-desc').innerHTML=DESC.map(d=>`
+    <div class="lc"><div class="ldot2" style="background:var(--red)"></div>
+    <div class="lb"><div class="ln">${d.c}</div><div class="lm"><span>${d.motivo}</span><span>${d.fr}</span><span>Por: ${d.por}</span><span>${d.data}</span></div></div>
+    <div class="lr"><span class="ltag" style="background:var(--sf2);border:1px solid var(--bd);color:var(--mu)">${d.rep}</span></div></div>`).join('');
+}
+
+// ── FORM ──────────────────────────────────────────────────────────────────
+const FORMS=['saida','entrada','retorno','envio'];
+let origAtual='saida';
+function setO(o,btn){
+  origAtual=o;
+  document.querySelectorAll('.ob').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  FORMS.forEach(f=>{document.getElementById('form-'+f).style.display=f===o?'block':'none'});
+}
+function clrF(){document.querySelectorAll('.fli,.fls').forEach(e=>e.value='')}
+function sub(msg){
+  const sb=document.getElementById('sb');
+  sb.textContent='✅ '+msg+'!';
+  sb.classList.add('on');
+  clrF();
+  setTimeout(()=>sb.classList.remove('on'),4000);
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+const PGS=['geral','kanban','frentes','estoque','registro','descarte'];
+function go(id,btn,idx){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  else document.querySelectorAll('.nb')[idx]?.classList.add('on');
+  document.querySelectorAll('.bni').forEach((b,i)=>b.classList.toggle('on',i===(idx??PGS.indexOf(id))));
+  window.scrollTo(0,0);
+}
+function setF(f,btn){
+  document.querySelectorAll('.chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────
+function tick(){
+  const n=new Date();
+  document.getElementById('clk').textContent=
+    n.toLocaleDateString('pt-BR')+' '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+buildGeral();buildKanban();buildFrentes();buildEstoque();buildMov();buildDescarte();
+tick();setInterval(tick,30000);
+</script>
+</body>
+</html>
